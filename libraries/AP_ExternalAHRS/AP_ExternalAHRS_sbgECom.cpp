@@ -255,15 +255,15 @@ bool AP_ExternalAHRS_sbgECom::check_uart()
 
     sbgEComProtocolPayloadDestroy(&payload);
 
-    if (error_code == SBG_NO_ERROR)
-    {
-        error_code = sendAirDataLog(&_com_handle);
-    }
+    // if (error_code == SBG_NO_ERROR)
+    // {
+    //     error_code = sendAirDataLog(&_com_handle);
+    // }
 
-    if (error_code == SBG_NO_ERROR)
-    {
-        error_code = sendMagDataLog(&_com_handle);
-    }
+    // if (error_code == SBG_NO_ERROR)
+    // {
+    //     error_code = sendMagDataLog(&_com_handle);
+    // }
 
     if (error_code == SBG_NO_ERROR)
     {

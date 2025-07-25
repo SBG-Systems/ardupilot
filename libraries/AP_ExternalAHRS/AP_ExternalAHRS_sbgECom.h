@@ -64,6 +64,7 @@ private:
     int8_t port_num;
     bool setup_complete;
     uint32_t baudrate;
+    bool use_ekf_pos;
 
     void update_thread();
     bool check_uart();

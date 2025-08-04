@@ -43,10 +43,7 @@ public:
     bool get_variances(float &velVar, float &posVar, float &hgtVar, Vector3f &magVar, float &tasVar) const override;
 
     // check for new data
-    void update() override
-    {
-        check_uart();
-    }
+    void update() override;
 
     // Get model/type name
     const char *get_name() const override;
@@ -66,8 +63,8 @@ private:
     uint32_t baudrate;
     bool use_ekf_pos;
 
-    void update_thread();
     bool check_uart();
+    bool send_uart();
 
     void initialize();
 

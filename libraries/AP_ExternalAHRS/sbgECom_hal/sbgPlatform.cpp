@@ -29,6 +29,11 @@ extern const AP_HAL::HAL& hal;
 //- Public functions                                                   -//
 //----------------------------------------------------------------------//
 
+SBG_COMMON_LIB_API uint32_t sbgGetTime(void)
+{
+    return AP_HAL::millis();
+}
+
 SBG_COMMON_LIB_API void sbgSleep(uint32_t ms)
 {
     hal.scheduler->delay(ms);

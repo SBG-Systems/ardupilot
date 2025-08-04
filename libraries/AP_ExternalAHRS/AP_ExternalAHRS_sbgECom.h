@@ -42,10 +42,7 @@ public:
     void get_filter_status(nav_filter_status &status) const override;
 
     // check for new data
-    void update() override
-    {
-        check_uart();
-    }
+    void update() override;
 
     // Get model/type name
     const char *get_name() const override;
@@ -59,8 +56,8 @@ private:
     uint32_t baudrate;
     bool use_ekf_pos;
 
-    void update_thread();
     bool check_uart();
+    bool send_uart();
 
     void initialize();
 

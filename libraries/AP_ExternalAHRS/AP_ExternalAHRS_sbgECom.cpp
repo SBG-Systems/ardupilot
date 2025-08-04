@@ -43,6 +43,7 @@
 
 extern const AP_HAL::HAL &hal;
 uint32_t last_packet_received_time_ms;
+uint32_t last_sending_time_ms;
 
 // constructor
 AP_ExternalAHRS_sbgECom::AP_ExternalAHRS_sbgECom(AP_ExternalAHRS *_frontend,
@@ -60,10 +61,10 @@ AP_ExternalAHRS_sbgECom::AP_ExternalAHRS_sbgECom(AP_ExternalAHRS *_frontend,
     port_num = sm.find_portnum(AP_SerialManager::SerialProtocol_AHRS, 0);
     GCS_SEND_TEXT(MAV_SEVERITY_INFO, "sbgECom ExternalAHRS UART found (%d - %" PRIu32 ")", port_num, baudrate);
 
-    if (!hal.scheduler->thread_create(FUNCTOR_BIND_MEMBER(&AP_ExternalAHRS_sbgECom::update_thread, void), "AHRS", 2048, AP_HAL::Scheduler::PRIORITY_SPI, 0))
-    {
-        AP_HAL::panic("sbgECom Failed to start ExternalAHRS update thread");
-    }
+    initialize();
+    // Open port in the thread
+    uart->begin(baudrate);
+
     GCS_SEND_TEXT(MAV_SEVERITY_INFO, "sbgECom ExternalAHRS initialised");
 }
 
@@ -89,7 +90,6 @@ void AP_ExternalAHRS_sbgECom::initialize()
 
     if (error_code == SBG_NO_ERROR)
     {
-        // getAndPrintProductInfo(&_com_handle);
         sbgEComSetReceiveLogCallback(&_com_handle, onLogReceived, this);
     }
     else
@@ -100,21 +100,6 @@ void AP_ExternalAHRS_sbgECom::initialize()
     GCS_SEND_TEXT(MAV_SEVERITY_INFO, "sbgECom initialized");
 
     setup_complete = true;
-}
-
-void AP_ExternalAHRS_sbgECom::update_thread()
-{
-    initialize();
-    // Open port in the thread
-    uart->begin(baudrate);
-
-    while (true)
-    {
-        if (!check_uart())
-        {
-            hal.scheduler->delay(1); // 1ms, decrease if necessary
-        }
-    }
 }
 
 const char *AP_ExternalAHRS_sbgECom::get_name() const
@@ -198,6 +183,19 @@ void AP_ExternalAHRS_sbgECom::get_filter_status(nav_filter_status &status) const
     }
 }
 
+void AP_ExternalAHRS_sbgECom::update()
+{
+    uint32_t now_ms = AP_HAL::millis();
+
+    check_uart();
+
+    if (now_ms - last_sending_time_ms > 100)
+    {
+        send_uart();
+        last_sending_time_ms = now_ms;
+    }
+}
+
 // /*
 //   check the UART for more data
 //   returns true if the function should be called again straight away
@@ -208,11 +206,10 @@ bool AP_ExternalAHRS_sbgECom::check_uart()
 {
     bool ret = false;
 
-    // hal.scheduler->delay(1000); // 1ms, decrease if necessary
     if (!setup_complete)
     {
         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "sbgECom setup not complete");
-        return false;
+        return ret;
     }
 
     SbgErrorCode error_code;
@@ -249,16 +246,6 @@ bool AP_ExternalAHRS_sbgECom::check_uart()
 
     sbgEComProtocolPayloadDestroy(&payload);
 
-    // if (error_code == SBG_NO_ERROR)
-    // {
-    //     error_code = sendAirDataLog(&_com_handle);
-    // }
-
-    // if (error_code == SBG_NO_ERROR)
-    // {
-    //     error_code = sendMagDataLog(&_com_handle);
-    // }
-
     if (error_code == SBG_NO_ERROR)
     {
         ret = true;
@@ -267,35 +254,31 @@ bool AP_ExternalAHRS_sbgECom::check_uart()
     return ret;
 }
 
-void AP_ExternalAHRS_sbgECom::getAndPrintProductInfo(SbgEComHandle *handle)
+bool AP_ExternalAHRS_sbgECom::send_uart()
 {
+    bool ret = false;
+
+    if (!setup_complete)
+    {
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "sbgECom setup not complete");
+        return ret;
+    }
+
     SbgErrorCode error_code;
-    SbgEComDeviceInfo device_info;
 
-    assert(handle);
-
-    error_code = sbgEComCmdGetInfo(handle, &device_info);
+    error_code = sendAirDataLog(&_com_handle);
 
     if (error_code == SBG_NO_ERROR)
     {
-        char calib_version_str[32];
-        char hw_revision_str[32];
-        char fmw_version_str[32];
-
-        sbgVersionToStringEncoded(device_info.calibationRev, calib_version_str, sizeof(calib_version_str));
-        sbgVersionToStringEncoded(device_info.hardwareRev, hw_revision_str, sizeof(hw_revision_str));
-        sbgVersionToStringEncoded(device_info.firmwareRev, fmw_version_str, sizeof(fmw_version_str));
-
-        SBG_LOG_INFO("      Serial Number: %09" PRIu32, device_info.serialNumber);
-        SBG_LOG_INFO("       Product Code: %s", device_info.productCode);
-        SBG_LOG_INFO("  Hardware Revision: %s", hw_revision_str);
-        SBG_LOG_INFO("   Firmware Version: %s", fmw_version_str);
-        SBG_LOG_INFO("     Calib. Version: %s", calib_version_str);
+        error_code = sendMagDataLog(&_com_handle);
     }
-    else
+
+    if (error_code == SBG_NO_ERROR)
     {
-        SBG_LOG_WARNING(error_code, "Unable to retrieve device information");
+        ret = true;
     }
+
+    return ret;
 }
 
 void AP_ExternalAHRS_sbgECom::printLogCallBack(const char *file_name, const char *function_name, uint32_t line, const char *category,
@@ -344,8 +327,6 @@ SbgErrorCode AP_ExternalAHRS_sbgECom::onLogReceived(SbgEComHandle *handle, SbgEC
 {
     SBG_UNUSED_PARAMETER(handle);
 
-    assert(msg_class);
-    assert(msg);
     assert(ref_sbg_data);
     assert(user_arg);
 
@@ -400,7 +381,6 @@ SbgErrorCode AP_ExternalAHRS_sbgECom::writeCallback(SbgInterface *p_interface, c
 
     // send data if possible
     uart->write((const uint8_t *)p_buffer, bytes_to_write);
-    uart->flush();
 
     return SBG_NO_ERROR;
 }
@@ -482,8 +462,8 @@ SbgErrorCode AP_ExternalAHRS_sbgECom::sendAirDataLog(SbgEComHandle *handle)
 
     memset(&air_data_log, 0x00, sizeof(air_data_log));
 
-    air_data_log.timeStamp = AP_HAL::micros();
-    // air_data_log.status |= SBG_ECOM_AIR_DATA_TIME_IS_DELAY;
+    air_data_log.timeStamp = 0;
+    air_data_log.status |= SBG_ECOM_AIR_DATA_TIME_IS_DELAY;
 
     AP_Baro *barometer = AP_Baro::get_singleton();
 

@@ -592,7 +592,7 @@ void AP_ExternalAHRS_sbgECom::process_gnss_pos_packet(const SbgEComLogUnion *ref
     
         instance->gnss_data.latitude = ref_sbg_data->gpsPosData.latitude * 1.0e7;
         instance->gnss_data.longitude = ref_sbg_data->gpsPosData.longitude * 1.0e7;
-        instance->gnss_data.msl_altitude = ref_sbg_data->gpsPosData.altitude * 1.0e7;
+        instance->gnss_data.msl_altitude = ref_sbg_data->gpsPosData.altitude * 1.0e2;
     }
 
     AP::gps().handle_external(instance->gnss_data, 0);
@@ -625,7 +625,7 @@ void AP_ExternalAHRS_sbgECom::process_ekf_nav_packet(const SbgEComLogUnion *ref_
     
         instance->gnss_data.latitude = ref_sbg_data->ekfNavData.position[0] * 1.0e7;
         instance->gnss_data.longitude = ref_sbg_data->ekfNavData.position[1] * 1.0e7;
-        instance->gnss_data.msl_altitude = ref_sbg_data->ekfNavData.position[2] * 1.0e7;
+        instance->gnss_data.msl_altitude = ref_sbg_data->ekfNavData.position[2] * 1.0e2;
 
         instance->gnss_data.horizontal_vel_accuracy = 0;
 

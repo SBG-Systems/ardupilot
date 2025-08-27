@@ -547,33 +547,6 @@ void AP_ExternalAHRS_sbgECom::process_gnss_pos_packet(const SbgEComLogUnion *ref
     instance->gnss_data.gps_week = ref_sbg_data->gpsPosData.timeOfWeek / 1000;
     instance->gnss_data.ms_tow = ref_sbg_data->gpsPosData.timeOfWeek - (instance->gnss_data.gps_week * 1000);
 
-    SbgEComGnssPosType posType = sbgEComLogGnssPosGetType(&ref_sbg_data->gpsPosData);
-    switch (posType)
-    {
-    case SBG_ECOM_GNSS_POS_TYPE_NO_SOLUTION:
-        instance->gnss_data.fix_type = GPS_FIX_TYPE_NO_FIX;
-        break;
-    case SBG_ECOM_GNSS_POS_TYPE_SINGLE:
-    case SBG_ECOM_GNSS_POS_TYPE_FIXED:
-        instance->gnss_data.fix_type = GPS_FIX_TYPE_3D_FIX;
-        break;
-    case SBG_ECOM_GNSS_POS_TYPE_PSRDIFF:
-    case SBG_ECOM_GNSS_POS_TYPE_SBAS:
-    case SBG_ECOM_GNSS_POS_TYPE_OMNISTAR:
-    case SBG_ECOM_GNSS_POS_TYPE_PPP_FLOAT:
-    case SBG_ECOM_GNSS_POS_TYPE_PPP_INT:
-        instance->gnss_data.fix_type = GPS_FIX_TYPE_DGPS;
-        break;
-    case SBG_ECOM_GNSS_POS_TYPE_RTK_FLOAT:
-        instance->gnss_data.fix_type = GPS_FIX_TYPE_RTK_FLOAT;
-        break;
-    case SBG_ECOM_GNSS_POS_TYPE_RTK_INT:
-        instance->gnss_data.fix_type = GPS_FIX_TYPE_RTK_FIXED;
-        break;
-    case SBG_ECOM_GNSS_POS_TYPE_UNKNOWN:
-        instance->gnss_data.fix_type = GPS_FIX_TYPE_NO_GPS;
-    }
-
     instance->gnss_data.hdop = 0.0f;
     instance->gnss_data.vdop = 0.0f;
 
@@ -581,6 +554,33 @@ void AP_ExternalAHRS_sbgECom::process_gnss_pos_packet(const SbgEComLogUnion *ref
 
     if (!instance->use_ekf_pos)
     {
+        SbgEComGnssPosType posType = sbgEComLogGnssPosGetType(&ref_sbg_data->gpsPosData);
+        switch (posType)
+        {
+        case SBG_ECOM_GNSS_POS_TYPE_NO_SOLUTION:
+            instance->gnss_data.fix_type = GPS_FIX_TYPE_NO_FIX;
+            break;
+        case SBG_ECOM_GNSS_POS_TYPE_SINGLE:
+        case SBG_ECOM_GNSS_POS_TYPE_FIXED:
+            instance->gnss_data.fix_type = GPS_FIX_TYPE_3D_FIX;
+            break;
+        case SBG_ECOM_GNSS_POS_TYPE_PSRDIFF:
+        case SBG_ECOM_GNSS_POS_TYPE_SBAS:
+        case SBG_ECOM_GNSS_POS_TYPE_OMNISTAR:
+        case SBG_ECOM_GNSS_POS_TYPE_PPP_FLOAT:
+        case SBG_ECOM_GNSS_POS_TYPE_PPP_INT:
+            instance->gnss_data.fix_type = GPS_FIX_TYPE_DGPS;
+            break;
+        case SBG_ECOM_GNSS_POS_TYPE_RTK_FLOAT:
+            instance->gnss_data.fix_type = GPS_FIX_TYPE_RTK_FLOAT;
+            break;
+        case SBG_ECOM_GNSS_POS_TYPE_RTK_INT:
+            instance->gnss_data.fix_type = GPS_FIX_TYPE_RTK_FIXED;
+            break;
+        case SBG_ECOM_GNSS_POS_TYPE_UNKNOWN:
+            instance->gnss_data.fix_type = GPS_FIX_TYPE_NO_GPS;
+        }
+
         instance->gnss_data.horizontal_pos_accuracy = sqrt(ref_sbg_data->gpsPosData.latitudeAccuracy * ref_sbg_data->gpsPosData.latitudeAccuracy + ref_sbg_data->gpsPosData.longitudeAccuracy * ref_sbg_data->gpsPosData.longitudeAccuracy);
         instance->gnss_data.vertical_pos_accuracy = ref_sbg_data->gpsPosData.altitudeAccuracy;
     
@@ -616,7 +616,7 @@ void AP_ExternalAHRS_sbgECom::process_ekf_nav_packet(const SbgEComLogUnion *ref_
     {
         instance->gnss_data.horizontal_pos_accuracy = sqrt(ref_sbg_data->ekfNavData.positionStdDev[0] * ref_sbg_data->ekfNavData.positionStdDev[1] + ref_sbg_data->ekfNavData.positionStdDev[0] * ref_sbg_data->ekfNavData.positionStdDev[1]);
         instance->gnss_data.vertical_pos_accuracy = ref_sbg_data->ekfNavData.positionStdDev[2];
-    
+
         instance->gnss_data.latitude = ref_sbg_data->ekfNavData.position[0] * 1.0e7;
         instance->gnss_data.longitude = ref_sbg_data->ekfNavData.position[1] * 1.0e7;
         instance->gnss_data.msl_altitude = ref_sbg_data->ekfNavData.position[2] * 1.0e2;

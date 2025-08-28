@@ -635,9 +635,12 @@ void AP_ExternalAHRS_sbgECom::process_ekf_nav_packet(const SbgEComLogUnion *ref_
 
     }
 
-    location.lat = ref_sbg_data->ekfNavData.position[0] * 1.0e7;
-    location.lng = ref_sbg_data->ekfNavData.position[1] * 1.0e7;
-    location.alt = ref_sbg_data->ekfNavData.position[2] * 1.0e7;
+    location = Location{
+        (int32_t) (ref_sbg_data->ekfNavData.position[0] * 1.0e7),
+        (int32_t) (ref_sbg_data->ekfNavData.position[1] * 1.0e7),
+        (int32_t) (ref_sbg_data->ekfNavData.position[2] * 1.0e2),
+        Location::AltFrame::ABSOLUTE
+    };
 
     velocity[0] = ref_sbg_data->ekfNavData.velocity[0];
     velocity[1] = ref_sbg_data->ekfNavData.velocity[1];

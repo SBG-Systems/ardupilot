@@ -544,8 +544,8 @@ void AP_ExternalAHRS_sbgECom::process_gnss_pos_packet(const SbgEComLogUnion *ref
 
     AP_ExternalAHRS_sbgECom *instance = static_cast<AP_ExternalAHRS_sbgECom *>(user_arg);
 
-    instance->gnss_data.gps_week = ref_sbg_data->gpsPosData.timeOfWeek / 1000;
-    instance->gnss_data.ms_tow = ref_sbg_data->gpsPosData.timeOfWeek - (instance->gnss_data.gps_week * 1000);
+    instance->gnss_data.gps_week = ref_sbg_data->gpsPosData.timeOfWeek / AP_MSEC_PER_WEEK;
+    instance->gnss_data.ms_tow = ref_sbg_data->gpsPosData.timeOfWeek;
 
     instance->gnss_data.hdop = 0.0f;
     instance->gnss_data.vdop = 0.0f;

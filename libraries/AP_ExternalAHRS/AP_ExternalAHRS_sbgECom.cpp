@@ -351,10 +351,12 @@ SbgErrorCode AP_ExternalAHRS_sbgECom::onLogReceived(SbgEComHandle *handle, SbgEC
             break;
 
         case SBG_ECOM_LOG_GPS1_POS:
+        case SBG_ECOM_LOG_GPS2_POS:
             process_gnss_pos_packet(ref_sbg_data, user_arg);
             break;
 
         case SBG_ECOM_LOG_GPS1_VEL:
+        case SBG_ECOM_LOG_GPS2_VEL:
             process_gnss_vel_packet(ref_sbg_data, user_arg);
             break;
 
@@ -668,6 +670,8 @@ void AP_ExternalAHRS_sbgECom::process_ekf_nav_packet(const SbgEComLogUnion *ref_
 
     if (instance->use_ekf_pos)
     {
+        instance->gnss_data.fix_type = GPS_FIX_TYPE_3D_FIX;
+
         instance->gnss_data.horizontal_pos_accuracy = sqrt(ref_sbg_data->ekfNavData.positionStdDev[0] * ref_sbg_data->ekfNavData.positionStdDev[1] + ref_sbg_data->ekfNavData.positionStdDev[0] * ref_sbg_data->ekfNavData.positionStdDev[1]);
         instance->gnss_data.vertical_pos_accuracy = ref_sbg_data->ekfNavData.positionStdDev[2];
 

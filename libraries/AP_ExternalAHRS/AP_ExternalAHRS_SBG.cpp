@@ -689,7 +689,7 @@ bool AP_ExternalAHRS_SBG::send_MagData(AP_HAL::UARTDriver *_uart)
         mag_data_log.status |= (SBG_ECOM_MAG_MAG_X_BIT | SBG_ECOM_MAG_MAG_Y_BIT | SBG_ECOM_MAG_MAG_Z_BIT | SBG_ECOM_MAG_MAGS_IN_RANGE | SBG_ECOM_MAG_CALIBRATION_OK);
     }
 
-    const sbgMessage msg = sbgMessage(SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_MAG, (uint8_t*)&mag_data_log, sizeof(mag_data_log));
+    const sbgMessage msg = sbgMessage(SBG_ECOM_LOG_MAG, SBG_ECOM_CLASS_LOG_ECOM_0, (uint8_t*)&mag_data_log, sizeof(mag_data_log));
     return send_sbgMessage(_uart, msg);
 }
 #endif // AP_COMPASS_ENABLED
@@ -726,7 +726,7 @@ bool AP_ExternalAHRS_SBG::send_AirData(AP_HAL::UARTDriver *_uart)
     }
 #endif // AP_AIRSPEED_ENABLED
 
-    const sbgMessage msg = sbgMessage(SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_AIR_DATA, (uint8_t*)&air_data_log, sizeof(air_data_log));
+    const sbgMessage msg = sbgMessage(SBG_ECOM_LOG_AIR_DATA, SBG_ECOM_CLASS_LOG_ECOM_0, (uint8_t*)&air_data_log, sizeof(air_data_log));
     return send_sbgMessage(_uart, msg);
 }
 

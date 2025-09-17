@@ -47,6 +47,7 @@
 // Local headers
 #include "sbgEComLogAirData.h"
 #include "sbgEComLogEkf.h"
+#include "sbgEComLogGnssHdt.h"
 #include "sbgEComLogGnssPos.h"
 #include "sbgEComLogGnssVel.h"
 #include "sbgEComLogImu.h"
@@ -72,6 +73,7 @@ typedef union _SbgEComLogUnion
     SbgEComLogUtc                   utcData;            /*!< Stores data for the SBG_ECOM_LOG_UTC_TIME message. */
     SbgEComLogGnssPos               gpsPosData;         /*!< Stores data for the SBG_ECOM_LOG_GPS_POS message. */
     SbgEComLogGnssVel               gpsVelData;         /*!< Stores data for the SBG_ECOM_LOG_GPS#_VEL message. */
+    SbgEComLogGnssHdt               gpsHdtData;         /*!< Stores data for the SBG_ECOM_LOG_GPS#_HDT message. */
     SbgEComLogMag                   magData;            /*!< Stores data for the SBG_ECOM_LOG_MAG message. */
     SbgEComLogAirData               airData;            /*!< Stores data for the SBG_ECOM_LOG_AIR_DATA message. */
 } SbgEComLogUnion;

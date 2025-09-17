@@ -153,6 +153,10 @@ public:
         float  ned_vel_north;
         float  ned_vel_east;
         float  ned_vel_down;
+        bool  have_yaw;
+        float yaw;
+        float yaw_accuracy;
+        uint32_t yaw_time_ms;
     } gps_data_message_t;
 
     typedef struct {

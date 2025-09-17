@@ -21,6 +21,7 @@ def configure(cfg):
         'libraries/AP_ExternalAHRS/sbgECom/src/logs/sbgEComLog.c',
         'libraries/AP_ExternalAHRS/sbgECom/src/logs/sbgEComLogAirData.c',
         'libraries/AP_ExternalAHRS/sbgECom/src/logs/sbgEComLogEkf.c',
+        'libraries/AP_ExternalAHRS/sbgECom/src/logs/sbgEComLogGnssHdt.c',
         'libraries/AP_ExternalAHRS/sbgECom/src/logs/sbgEComLogGnssPos.c',
         'libraries/AP_ExternalAHRS/sbgECom/src/logs/sbgEComLogGnssVel.c',
         'libraries/AP_ExternalAHRS/sbgECom/src/logs/sbgEComLogImu.c',

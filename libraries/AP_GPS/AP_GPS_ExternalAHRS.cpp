@@ -18,6 +18,7 @@
 //
 #include <AP_ExternalAHRS/AP_ExternalAHRS.h>
 #include "AP_GPS_ExternalAHRS.h"
+#include <GCS_MAVLink/GCS.h>
 
 #if HAL_EXTERNAL_AHRS_ENABLED
 
@@ -72,6 +73,13 @@ void AP_GPS_ExternalAHRS::handle_external(const AP_ExternalAHRS::gps_data_messag
     state.horizontal_accuracy = pkt.horizontal_pos_accuracy;
     state.vertical_accuracy = pkt.vertical_pos_accuracy;
     state.speed_accuracy = pkt.horizontal_vel_accuracy;
+
+    state.gps_yaw = pkt.yaw;
+    state.gps_yaw_accuracy = pkt.yaw_accuracy;
+    state.gps_yaw_configured = pkt.have_yaw;
+    state.gps_yaw_time_ms = pkt.yaw_time_ms;
+    state.have_gps_yaw = pkt.have_yaw;
+    state.have_gps_yaw_accuracy = true;
 
     state.last_gps_time_ms = AP_HAL::millis();
 

@@ -9,6 +9,7 @@
 #include "sbgEComLog.h"
 #include "sbgEComLogAirData.h"
 #include "sbgEComLogEkf.h"
+#include "sbgEComLogGnssHdt.h"
 #include "sbgEComLogGnssPos.h"
 #include "sbgEComLogGnssVel.h"
 #include "sbgEComLogImu.h"
@@ -62,6 +63,10 @@ SbgErrorCode sbgEComLogParse(SbgEComClass msgClass, SbgEComMsgId msgId, const vo
         case SBG_ECOM_LOG_GPS1_POS:
         case SBG_ECOM_LOG_GPS2_POS:
             errorCode = sbgEComLogGnssPosReadFromStream(&pLogData->gpsPosData, &inputStream);
+            break;
+        case SBG_ECOM_LOG_GPS1_HDT:
+        case SBG_ECOM_LOG_GPS2_HDT:
+            errorCode = sbgEComLogGnssHdtReadFromStream(&pLogData->gpsHdtData, &inputStream);
             break;
         case SBG_ECOM_LOG_MAG:
             errorCode = sbgEComLogMagReadFromStream(&pLogData->magData, &inputStream);

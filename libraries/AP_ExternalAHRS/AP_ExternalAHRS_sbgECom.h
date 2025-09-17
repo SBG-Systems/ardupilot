@@ -67,6 +67,7 @@ private:
     static void process_ekf_quat_packet(const SbgEComLogUnion *ref_sbg_data, void *user_arg);
     static void process_ekf_nav_packet(const SbgEComLogUnion *ref_sbg_data, void *user_arg);
     static void process_mag_packet(const SbgEComLogUnion *ref_sbg_data, void *user_arg);
+    static void process_gnss_hdt_packet(const SbgEComLogUnion *ref_sbg_data, void *user_arg);
     static void process_gnss_pos_packet(const SbgEComLogUnion *ref_sbg_data, void *user_arg);
     static void process_gnss_vel_packet(const SbgEComLogUnion *ref_sbg_data, void *user_arg);
     static void process_utc_time_packet(const SbgEComLogUnion *ref_sbg_data, void *user_arg);

@@ -354,6 +354,11 @@ SbgErrorCode AP_ExternalAHRS_sbgECom::onLogReceived(SbgEComHandle *handle, SbgEC
             process_gnss_vel_packet(ref_sbg_data, user_arg);
             break;
 
+        case SBG_ECOM_LOG_GPS1_HDT:
+        case SBG_ECOM_LOG_GPS2_HDT:
+            process_gnss_hdt_packet(ref_sbg_data, user_arg);
+            break;
+
         case SBG_ECOM_LOG_EKF_QUAT:
             process_ekf_quat_packet(ref_sbg_data, user_arg);
             break;
@@ -562,6 +567,24 @@ void AP_ExternalAHRS_sbgECom::process_utc_time_packet(const SbgEComLogUnion *ref
     }
 
     instance->gnss_data.ms_tow = ref_sbg_data->utcData.gpsTimeOfWeek;
+}
+
+void AP_ExternalAHRS_sbgECom::process_gnss_hdt_packet(const SbgEComLogUnion *ref_sbg_data, void *user_arg)
+{
+    assert(ref_sbg_data);
+    assert(user_arg);
+
+    AP_ExternalAHRS_sbgECom *instance = static_cast<AP_ExternalAHRS_sbgECom *>(user_arg);
+
+    SbgEComGnssHdtStatus hdt_status = sbgEComLogGnssHdtGetStatus(&ref_sbg_data->gpsHdtData);
+
+    instance->gnss_data.have_yaw = (hdt_status == SBG_ECOM_GNSS_HDT_STATUS_SOL_COMPUTED);
+
+    instance->gnss_data.yaw = ref_sbg_data->gpsHdtData.heading;
+    instance->gnss_data.yaw_accuracy = ref_sbg_data->gpsHdtData.headingAccuracy;
+    instance->gnss_data.yaw_time_ms = AP_HAL::millis();
+
+    AP::gps().handle_external(instance->gnss_data, 0);
 }
 
 void AP_ExternalAHRS_sbgECom::process_gnss_vel_packet(const SbgEComLogUnion *ref_sbg_data, void *user_arg)

@@ -701,6 +701,11 @@ void AP_ExternalAHRS_sbgECom::process_ekf_nav_packet(const SbgEComLogUnion *ref_
         instance->gnss_data.ned_vel_north = ref_sbg_data->ekfNavData.velocity[0];
         instance->gnss_data.ned_vel_east = ref_sbg_data->ekfNavData.velocity[1];
         instance->gnss_data.ned_vel_down = ref_sbg_data->ekfNavData.velocity[2];
+
+        uint8_t gps_instance;
+        if (AP::gps().get_first_external_instance(gps_instance)) {
+            AP::gps().handle_external(instance->gnss_data, gps_instance);
+        }
     }
 
     location = Location{

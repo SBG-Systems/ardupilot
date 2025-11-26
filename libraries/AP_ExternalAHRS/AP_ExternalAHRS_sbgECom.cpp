@@ -584,7 +584,10 @@ void AP_ExternalAHRS_sbgECom::process_gnss_hdt_packet(const SbgEComLogUnion *ref
     instance->gnss_data.yaw_accuracy = ref_sbg_data->gpsHdtData.headingAccuracy;
     instance->gnss_data.yaw_time_ms = AP_HAL::millis();
 
-    AP::gps().handle_external(instance->gnss_data, 0);
+    uint8_t gps_instance;
+    if (AP::gps().get_first_external_instance(gps_instance)) {
+        AP::gps().handle_external(instance->gnss_data, gps_instance);
+    }
 }
 
 void AP_ExternalAHRS_sbgECom::process_gnss_vel_packet(const SbgEComLogUnion *ref_sbg_data, void *user_arg)
@@ -598,14 +601,17 @@ void AP_ExternalAHRS_sbgECom::process_gnss_vel_packet(const SbgEComLogUnion *ref
 
     if (!instance->use_ekf_pos)
     {
-        instance->gnss_data.horizontal_vel_accuracy = 0.0f;
+        instance->gnss_data.horizontal_vel_accuracy = sqrt(ref_sbg_data->gpsVelData.velocityAcc[0] * ref_sbg_data->gpsVelData.velocityAcc[0] + ref_sbg_data->gpsVelData.velocityAcc[1] * ref_sbg_data->gpsVelData.velocityAcc[1]);
 
         instance->gnss_data.ned_vel_north = ref_sbg_data->gpsVelData.velocity[0];
         instance->gnss_data.ned_vel_east = ref_sbg_data->gpsVelData.velocity[1];
         instance->gnss_data.ned_vel_down = ref_sbg_data->gpsVelData.velocity[2];
     }
 
-    AP::gps().handle_external(instance->gnss_data, 0);
+    uint8_t gps_instance;
+    if (AP::gps().get_first_external_instance(gps_instance)) {
+        AP::gps().handle_external(instance->gnss_data, gps_instance);
+    }
 }
 
 void AP_ExternalAHRS_sbgECom::process_gnss_pos_packet(const SbgEComLogUnion *ref_sbg_data, void *user_arg)
@@ -689,14 +695,14 @@ void AP_ExternalAHRS_sbgECom::process_ekf_nav_packet(const SbgEComLogUnion *ref_
     {
         instance->gnss_data.fix_type = GPS_FIX_TYPE_3D_FIX;
 
-        instance->gnss_data.horizontal_pos_accuracy = sqrt(ref_sbg_data->ekfNavData.positionStdDev[0] * ref_sbg_data->ekfNavData.positionStdDev[1] + ref_sbg_data->ekfNavData.positionStdDev[0] * ref_sbg_data->ekfNavData.positionStdDev[1]);
+        instance->gnss_data.horizontal_pos_accuracy = sqrt(ref_sbg_data->ekfNavData.positionStdDev[0] * ref_sbg_data->ekfNavData.positionStdDev[0] + ref_sbg_data->ekfNavData.positionStdDev[1] * ref_sbg_data->ekfNavData.positionStdDev[1]);
         instance->gnss_data.vertical_pos_accuracy = ref_sbg_data->ekfNavData.positionStdDev[2];
 
         instance->gnss_data.latitude = ref_sbg_data->ekfNavData.position[0] * 1.0e7;
         instance->gnss_data.longitude = ref_sbg_data->ekfNavData.position[1] * 1.0e7;
         instance->gnss_data.msl_altitude = ref_sbg_data->ekfNavData.position[2] * 1.0e2;
 
-        instance->gnss_data.horizontal_vel_accuracy = 0;
+        instance->gnss_data.horizontal_vel_accuracy = sqrt(ref_sbg_data->ekfNavData.velocityStdDev[0] * ref_sbg_data->ekfNavData.velocityStdDev[0] + ref_sbg_data->ekfNavData.velocityStdDev[1] * ref_sbg_data->ekfNavData.velocityStdDev[1]);
 
         instance->gnss_data.ned_vel_north = ref_sbg_data->ekfNavData.velocity[0];
         instance->gnss_data.ned_vel_east = ref_sbg_data->ekfNavData.velocity[1];

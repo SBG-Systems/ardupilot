@@ -33,6 +33,7 @@ class AP_ExternalAHRS {
 
 public:
     friend class AP_ExternalAHRS_backend;
+    friend class AP_ExternalAHRS_SBG;
     friend class AP_ExternalAHRS_VectorNav;
 
     AP_ExternalAHRS();
@@ -175,6 +176,7 @@ protected:
 
     enum class OPTIONS {
         VN_UNCOMP_IMU = 1U << 0,
+        SBG_EKF_AS_GNSS = 1U << 1,
     };
     bool option_is_set(OPTIONS option) const { return (options.get() & int32_t(option)) != 0; }
 

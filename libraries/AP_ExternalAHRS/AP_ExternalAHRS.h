@@ -58,9 +58,7 @@ public:
 #if AP_EXTERNAL_AHRS_MICROSTRAIN7_ENABLED
         MicroStrain7 = 7,
 #endif
-#if AP_EXTERNAL_AHRS_SBGECOM_ENABLED
-        sbgECom = 8,
-#endif
+        // 8 reserved for SBG
         // 9 reserved for EulerNav
         // 10 reserved for Aeron
     };
@@ -153,10 +151,6 @@ public:
         float  ned_vel_north;
         float  ned_vel_east;
         float  ned_vel_down;
-        bool  have_yaw;
-        float yaw;
-        float yaw_accuracy;
-        uint32_t yaw_time_ms;
     } gps_data_message_t;
 
     typedef struct {

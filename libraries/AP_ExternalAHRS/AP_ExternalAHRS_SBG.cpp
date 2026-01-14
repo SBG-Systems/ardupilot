@@ -492,7 +492,7 @@ void AP_ExternalAHRS_SBG::handle_msg(const sbgMessage &msg)
 
                 if (!state.have_location && ekf_is_full_nav) {
                     state.have_location = true;
-                } else if (!state.have_origin && cached.sensors.gps_data.fix_type >= AP_GPS_FixType::FIX_3D && ekf_is_full_nav) {
+                } else if (!state.have_origin && static_cast<AP_GPS_FixType>(cached.sensors.gps_data.fix_type) >= AP_GPS_FixType::FIX_3D && ekf_is_full_nav) {
                     // this is in an else so that origin doesn't get set on the very very first sample, do it on the second one just to give us a tiny bit more chance of a better origin
                     state.origin = state.location;
                     state.have_origin = true;
@@ -508,7 +508,7 @@ void AP_ExternalAHRS_SBG::handle_msg(const sbgMessage &msg)
                     cached.sensors.gps_data.vertical_pos_accuracy = cached.sbg.ekfNav.positionStdDev[2];
                     cached.sensors.gps_data.vdop =  cached.sensors.gps_data.vertical_pos_accuracy;
 
-                    cached.sensors.gps_data.fix_type = AP_GPS_FixType::FIX_3D;
+                    cached.sensors.gps_data.fix_type = static_cast<uint8_t>(AP_GPS_FixType::FIX_3D);
 
                     cached.sensors.gps_data.ned_vel_north = cached.sbg.ekfNav.velocity[0];
                     cached.sensors.gps_data.ned_vel_east = cached.sbg.ekfNav.velocity[1];
@@ -552,7 +552,7 @@ void AP_ExternalAHRS_SBG::handle_msg(const sbgMessage &msg)
                     cached.sensors.gps_data.satellites_in_view = cached.sbg.gnssPos.numSvUsed;
                     // unused - cached.sbg.gnssPos.baseStationId
                     // unused - cached.sbg.gnssPos.differentialAge
-                    cached.sensors.gps_data.fix_type = SbgGpsPosStatus_to_GpsFixType(cached.sbg.gnssPos.status);
+                    cached.sensors.gps_data.fix_type = static_cast<uint8_t>(SbgGpsPosStatus_to_GpsFixType(cached.sbg.gnssPos.status));
                     updated_gps = true;
                 }
                 break;
@@ -786,16 +786,6 @@ bool AP_ExternalAHRS_SBG::send_AirData(AP_HAL::UARTDriver *_uart)
 
     const sbgMessage msg = sbgMessage(SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_AIR_DATA, (uint8_t*)&air_data_log, sizeof(air_data_log));
     return send_sbgMessage(_uart, msg);
-}
-
-// get variances
-bool AP_ExternalAHRS_SBG::get_variances(float &velVar, float &posVar, float &hgtVar, Vector3f &magVar, float &tasVar) const
-{
-    velVar = cached.sensors.gps_data.horizontal_vel_accuracy * vel_gate_scale;
-    posVar = cached.sensors.gps_data.horizontal_pos_accuracy * pos_gate_scale;
-    hgtVar = cached.sensors.gps_data.vertical_pos_accuracy * hgt_gate_scale;
-    tasVar = 0;
-    return true;
 }
 
 #endif  // AP_EXTERNAL_AHRS_SBG_ENABLED

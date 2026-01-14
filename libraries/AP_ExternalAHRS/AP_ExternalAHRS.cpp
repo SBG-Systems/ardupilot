@@ -133,7 +133,7 @@ void AP_ExternalAHRS::init(void)
 
 #if AP_EXTERNAL_AHRS_SBG_ENABLED
     case DevType::SBG:
-        backend = NEW_NOTHROW AP_ExternalAHRS_SBG(this, state);
+        backend = new AP_ExternalAHRS_SBG(this, state);
         return;
 #endif // AP_EXTERNAL_AHRS_SBG_ENABLED
 

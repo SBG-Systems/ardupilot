@@ -27,6 +27,8 @@
 #include "AP_ExternalAHRS_backend.h"
 #include "AP_ExternalAHRS_SBG_structs.h"
 
+#include <AP_GPS/AP_GPS_FixType.h>
+
 class AP_ExternalAHRS_SBG : public AP_ExternalAHRS_backend {
 
 public:
@@ -42,19 +44,11 @@ public:
 
     void get_filter_status(nav_filter_status &status) const override;
 
-    bool get_variances(float &velVar, float &posVar, float &hgtVar, Vector3f &magVar, float &tasVar) const override;
-
     // check for new data
     void update() override { }
 
     // Get model/type name
     const char* get_name() const override { return "SBG"; }
-
-protected:
-
-    uint8_t num_gps_sensors(void) const override {
-        return 1;
-    }
 
 private:
 

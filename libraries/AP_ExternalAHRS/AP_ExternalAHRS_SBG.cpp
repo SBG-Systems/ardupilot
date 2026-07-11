@@ -509,6 +509,11 @@ void AP_ExternalAHRS_SBG::handle_msg(const sbgMessage &msg)
 
                     cached.sensors.gps_data.fix_type = AP_GPS_FixType::FIX_3D;
 
+                    // keep reporting the receiver's satellite count: the raw GPSx_POS
+                    // handler below is skipped in EKF-as-GNSS mode, and a stale count of
+                    // 0 makes EKF3's NSats quality check reject this GPS forever
+                    cached.sensors.gps_data.satellites_in_view = cached.sbg.gnssPos.numSvUsed;
+
                     cached.sensors.gps_data.ned_vel_north = cached.sbg.ekfNav.velocity[0];
                     cached.sensors.gps_data.ned_vel_east = cached.sbg.ekfNav.velocity[1];
                     cached.sensors.gps_data.ned_vel_down = cached.sbg.ekfNav.velocity[2];
